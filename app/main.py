@@ -3,9 +3,14 @@ from fastapi.responses import JSONResponse
 from app.core.exceptions import ModelNotFoundError
 from app.controllers.file_controller import FileController
 from app.api.endpoints import orders, messages
-from app.middlewares.request_logger import RequestLoggerMiddleware
+from app.middlewares.request_logger_middleware import RequestLoggerMiddleware
+from app.listeners import setup_listeners
+
+
+setup_listeners()
 
 app = FastAPI()
+
 app.add_middleware(RequestLoggerMiddleware)
 
 @app.exception_handler(ModelNotFoundError)
