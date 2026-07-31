@@ -1,16 +1,14 @@
-from google.antigravity import Agent, LocalAgentConfig
+from app.services.agent_service import agent_service
+
 
 class FileController:
     async def get_files_info(self) -> dict:
-        # Especificamos explícitamente un modelo soportado en v1beta (ej. gemini-2.5-flash o gemini-3.5-flash)
-        config = LocalAgentConfig(model="gemini-2.5-flash")
-        
-        async with Agent(config) as agent:
-            response = await agent.chat("What files are in the current directory?")
-            response_text = await response.text()
+        model = "gemini-2.5-flash"
+        prompt = "What files are in the current directory?"
+        response_text = await agent_service.chat(prompt=prompt, model=model)
             
         return {
             "status": "success",
-            "model_used": "gemini-2.5-flash",
+            "model_used": model,
             "agent_response": response_text
         }
