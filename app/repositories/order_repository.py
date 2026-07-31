@@ -16,4 +16,10 @@ class OrderRepository(BaseRepository[Order, OrderCreate]):
         )
         return result.scalars().first()
 
+    async def get_all_with_messages(self, db: AsyncSession, skip: int = 0, limit: int = 100) -> list[Order]:
+        result = await db.execute(
+            select(self.model).options(selectinload(self.model.messages)).offset(skip).limit(limit)
+        )
+        return list(result.scalars().all())
+
 order_repository = OrderRepository()

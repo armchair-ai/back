@@ -13,6 +13,14 @@ async def create_order(
 ):
     return await order_service.create_order(db, order_in=order_in)
 
+@router.get("/", response_model=list[OrderResponse])
+async def get_orders(
+    skip: int = 0,
+    limit: int = 100,
+    db: AsyncSession = Depends(get_db)
+):
+    return await order_service.get_all_orders(db, skip=skip, limit=limit)
+
 @router.get("/{order_id}", response_model=OrderResponse)
 async def get_order(
     order_id: int,

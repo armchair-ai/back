@@ -14,6 +14,10 @@ class BaseRepository(Generic[ModelType, CreateSchemaType]):
         result = await db.execute(select(self.model).filter(self.model.id == id))
         return result.scalars().first()
 
+    async def get_all(self, db: AsyncSession, skip: int = 0, limit: int = 100) -> List[ModelType]:
+        result = await db.execute(select(self.model).offset(skip).limit(limit))
+        return list(result.scalars().all())
+
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = obj_in.model_dump()
         db_obj = self.model(**obj_in_data)

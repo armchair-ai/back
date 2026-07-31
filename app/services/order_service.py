@@ -14,4 +14,7 @@ class OrderService:
             raise ModelNotFoundError("Order not found")
         return order
 
+    async def get_all_orders(self, db: AsyncSession, skip: int = 0, limit: int = 100) -> list[Order]:
+        return await order_repository.get_all_with_messages(db, skip=skip, limit=limit)
+
 order_service = OrderService()

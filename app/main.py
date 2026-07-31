@@ -15,11 +15,11 @@ async def model_not_found_exception_handler(request: Request, exc: ModelNotFound
         content={"message": exc.message},
     )
 
-file_controller = FileController()
+""" file_controller = FileController()
 
 @app.get("/")
 async def root():
-    return await file_controller.get_files_info()
+    return await file_controller.get_files_info() """
 
 app.include_router(orders.router, prefix="/orders", tags=["Orders"])
 app.include_router(messages.router, tags=["Messages"])
