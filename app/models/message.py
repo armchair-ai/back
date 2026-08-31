@@ -12,3 +12,4 @@ class Message(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     order = relationship("Order", back_populates="messages")
+    plans = relationship("Plan", back_populates="message", cascade="all, delete-orphan")
