@@ -3,7 +3,7 @@ from app.events.message import MessageCreatedEvent
 from app.core.database import AsyncSessionLocal
 from app.repositories.message_repository import message_repository
 from app.repositories.plan_repository import plan_repository
-from app.schemas.plan import PlanCreate
+from app.schemas.plan import PlanCreate, PlanCreateResponse
 from app.services.agent_service import agent_service
 from app.core.event_dispatcher import event_dispatcher
 
@@ -19,17 +19,16 @@ async def create_plan_listener(event: BaseModel) -> None:
             if not message:
                 return
 
-            response_structure = '{\n  "success": true,\n  "filename": "nombre_del_archivo.md"\n}'
-            agent_result = await agent_service.chat_json(
+            agent_result = await agent_service.chat_structured(
                 prompt=message.text,
-                response_structure=response_structure
+                response_structure=PlanCreateResponse
             )
             
-            is_success = agent_result.get("success", False)
-            filename = str(agent_result.get("filename", "")).strip()
-            
-            if is_success and filename:
-                plan = PlanCreate(filename=filename, message_id=message.id)
+            if agent_result and agent_result.success and agent_result.filename:
+                plan = PlanCreate(
+                    filename=agent_result.filename.strip(),
+                    message_id=message.id
+                )
                 await plan_repository.create(db, obj_in=plan)
 
 

@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
-from datetime import datetime
+from pydantic import BaseModel, Field
 
 
 class PlanBase(BaseModel):
@@ -10,9 +9,6 @@ class PlanCreate(PlanBase):
     message_id: int
 
 
-class PlanResponse(PlanBase):
-    id: int
-    message_id: int
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+class PlanCreateResponse(BaseModel):
+    success: bool = Field(default=False)
+    filename: str = Field(default="")
