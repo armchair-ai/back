@@ -14,7 +14,7 @@ class MessageService:
             raise ModelNotFoundError("Order not found")
         
         message = await message_repository.create_with_order(db, obj_in=message_in, order_id=order_id)
-        event = MessageCreatedEvent(id=message.id, order_id=message.order_id)
+        event = MessageCreatedEvent(id=message.id)
         await event_dispatcher.dispatch(event)
         return message
 

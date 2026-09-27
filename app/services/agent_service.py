@@ -24,10 +24,6 @@ class AgentService:
         response_structure: str,
         model: str = "gemini-2.5-flash"
     ) -> Dict[str, Any]:
-        """
-        Solicita al agente procesar la instrucción y responder con la estructura JSON
-        especificada en el parámetro 'response_structure'.
-        """
         json_prompt = (
             f"{prompt}\n\n"
             "IMPORTANTE: Responde ÚNICAMENTE en formato JSON válido (sin bloques de código markdown) "
