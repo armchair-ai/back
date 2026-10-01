@@ -1,17 +1,15 @@
-from typing import Callable, Awaitable, List
+import logging
 from pydantic import BaseModel
+from app.core.queue import redis_queue
 
-EventHandler = Callable[[BaseModel], Awaitable[None]]
+logger = logging.getLogger(__name__)
 
 class EventDispatcher:
-    def __init__(self) -> None:
-        self._handlers: List[EventHandler] = []
-
-    def register(self, handler: EventHandler) -> None:
-        self._handlers.append(handler)
-
     async def dispatch(self, event: BaseModel) -> None:
-        for handler in self._handlers:
-            await handler(event)
+        try:
+            await redis_queue.enqueue(event)
+        except Exception as exc:
+            logger.error(f"Failed to enqueue event {event}: {exc}")
+
 
 event_dispatcher = EventDispatcher()

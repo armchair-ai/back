@@ -19,10 +19,3 @@ Esta tabla sirve como referencia rápida para entender los comandos de migracion
 ```sql
 TRUNCATE TABLE orders RESTART IDENTITY CASCADE;
 ```
-
-
-## Monitor Redis
-
-```sh
-docker exec -it aa-redis redis-cli SUBSCRIBE MessageCreated
-```
