@@ -12,6 +12,7 @@ Esta tabla sirve como referencia rápida para entender los comandos de migracion
 | **Aplicar las migraciones** | `php artisan migrate` | `alembic upgrade head` (o `make migrate` en nuestra config) |
 | **Revertir la última migración** | `php artisan migrate:rollback` | `alembic downgrade -1` |
 | **Resetear todo** | `php artisan migrate:fresh` | `alembic downgrade base` |
+| **Ejecutar Seeders** | `php artisan db:seed` | `python -m database.seeds.run` (o `make seed` en nuestra config) |
 
 
 ## Truncate tables

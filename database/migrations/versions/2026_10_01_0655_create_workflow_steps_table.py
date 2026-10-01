@@ -24,10 +24,12 @@ def upgrade() -> None:
     op.create_table('workflow_steps',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(), nullable=False),
+        sa.Column('order', sa.Integer(), nullable=False),
         sa.Column('model', sa.String(), nullable=False),
         sa.Column('system_instructions', sa.String(), nullable=False),
         sa.Column('response_schema', sa.String(), nullable=True),
         sa.Column('skills_paths', sa.String(), nullable=True),
+        sa.CheckConstraint('"order" > 0', name='check_workflow_steps_order_positive'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name')
     )
