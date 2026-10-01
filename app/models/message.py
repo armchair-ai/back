@@ -13,3 +13,4 @@ class Message(Base):
 
     order = relationship("Order", back_populates="messages")
     plans = relationship("Plan", back_populates="message", cascade="all, delete-orphan")
+    message_workflow_steps = relationship("MessageWorkflowStep", back_populates="message", cascade="all, delete-orphan")
