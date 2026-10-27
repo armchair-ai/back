@@ -6,3 +6,6 @@
 5. Return the response using the structured schema:
    - `success`: Boolean (`true` if the plan was created and saved to disk successfully, `false` otherwise).
    - `filename`: Path or name of the saved file (e.g., `plans/plan_feature_auth.md`).
+
+# Project Context
+The backend is a Laravel project located at `/workspace/skeleton-laravel-back`. All plans, file paths, and implementation steps must target this application.
