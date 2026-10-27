@@ -1,18 +1,21 @@
-import json
 import logging
-import re
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from google.antigravity import Agent, LocalAgentConfig
 
 logger = logging.getLogger(__name__)
 
 
 class AgentService:
-    async def chat(self, prompt: str, model: str = "gemini-2.5-flash") -> str:
-        """
-        Envía un prompt al agente y retorna la respuesta en texto plano.
-        """
-        config = LocalAgentConfig(model=model)
+    async def chat(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        system_instructions: Optional[str] = None,
+    ) -> str:
+        config = LocalAgentConfig(
+            model=model or "gemini-2.5-flash",
+            system_instructions=system_instructions,
+        )
         
         async with Agent(config) as agent:
             response = await agent.chat(prompt)
@@ -22,11 +25,13 @@ class AgentService:
         self,
         prompt: str,
         response_structure: Any,
-        model: str = "gemini-2.5-flash"
+        model: Optional[str] = None,
+        system_instructions: Optional[str] = None,
     ) -> Dict[str, Any]:
         config = LocalAgentConfig(
-            model=model,
-            response_schema=response_structure
+            model=model or "gemini-2.5-flash",
+            response_schema=response_structure,
+            system_instructions=system_instructions,
         )
         async with Agent(config) as agent:
             response = await agent.chat(prompt)

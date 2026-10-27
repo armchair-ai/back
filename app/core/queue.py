@@ -5,11 +5,13 @@ from typing import Any, Dict, Optional, Type
 from pydantic import BaseModel
 from app.core.redis import redis_client
 from app.events.message import MessageCreatedEvent
+from app.events.workflow import WorkflowStepCompletedEvent
 
 logger = logging.getLogger(__name__)
 
 EVENT_TYPES: Dict[str, Type[BaseModel]] = {
     "MessageCreated": MessageCreatedEvent,
+    "WorkflowStepCompleted": WorkflowStepCompletedEvent,
 }
 
 

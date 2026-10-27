@@ -4,7 +4,8 @@ import signal
 from typing import List, Callable, Awaitable
 from pydantic import BaseModel
 from app.core.queue import redis_queue
-from app.listeners.create_plan_listener import create_plan_listener
+from app.listeners.start_workflow_listener import start_workflow_listener
+from app.listeners.advance_workflow_listener import advance_workflow_listener
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,9 +17,9 @@ WorkerHandler = Callable[[BaseModel], Awaitable[None]]
 
 # Lista de handlers asíncronos que procesa el worker en segundo plano
 WORKER_HANDLERS: List[WorkerHandler] = [
-    create_plan_listener,
+    start_workflow_listener,
+    advance_workflow_listener,
 ]
-
 
 class QueueWorker:
     def __init__(self) -> None:
@@ -50,18 +51,16 @@ class QueueWorker:
                 await asyncio.sleep(1)
 
 
-async def main() -> None:
-    worker = QueueWorker()
+def setup_signal_handlers(worker: QueueWorker) -> None:
     loop = asyncio.get_running_loop()
 
     for sig in (signal.SIGINT, signal.SIGTERM):
-        try:
-            loop.add_signal_handler(sig, worker.stop)
-        except NotImplementedError:
-            pass
+        loop.add_signal_handler(sig, worker.stop)
 
+async def main() -> None:
+    worker = QueueWorker()
+    setup_signal_handlers(worker)
     await worker.run()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

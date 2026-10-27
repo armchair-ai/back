@@ -10,10 +10,26 @@ async def seed(session: AsyncSession) -> None:
             "name": "create_plan",
             "order": 1,
             "model": "gemini-2.5-flash",
-            "system_instructions": "create_plan/system_instructions.md",
+            "system_instructions": "create_plan.md",
             "response_schema": "PlannerResponse",
             "skills_paths": "skills",
-        }
+        },
+        {
+            "name": "execute_plan",
+            "order": 2,
+            "model": "gemini-2.5-flash",
+            "system_instructions": "execute_plan.md",
+            "response_schema": None,
+            "skills_paths": "skills",
+        },
+        {
+            "name": "review_code_style",
+            "order": 3,
+            "model": "gemini-2.5-flash",
+            "system_instructions": "review_code_style.md",
+            "response_schema": None,
+            "skills_paths": "skills",
+        },
     ]
 
     for data in initial_steps:
@@ -26,4 +42,7 @@ async def seed(session: AsyncSession) -> None:
             session.add(step)
             print(f"  [+] WorkflowStep '{data['name']}' creado.")
         else:
-            print(f"  [=] WorkflowStep '{data['name']}' ya existe, omitiendo.")
+            # Actualizar campos existentes para mantener sincronizada la configuración
+            for key, val in data.items():
+                setattr(existing, key, val)
+            print(f"  [=] WorkflowStep '{data['name']}' actualizado.")
