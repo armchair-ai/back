@@ -43,15 +43,16 @@ class ExecutePlanExecutor(BaseWorkflowExecutor):
             )
             response_schema = SCHEMA_MAP.get(step.response_schema or "", ExecutePlanResponse)
 
-            prompt = plan.filename if plan else ""
+            prompt = plan.filename if (plan and plan.filename) else "Execute the implementation plan."
 
             logger.info(f"Invoking agent for execute_plan, message_id={message_id}")
-            agent_result: Any = await agent_service.chat_structured(
+            agent_result, response_text = await agent_service.chat_structured_with_text(
                 prompt=prompt,
                 response_structure=response_schema,
                 model=step.model,
                 system_instructions=system_instructions,
             )
+            logger.info(f"Agent finished execute_plan. Structured result: {agent_result}")
 
             def _get_val(obj: Any, key: str) -> Any:
                 return obj.get(key) if isinstance(obj, dict) else getattr(obj, key, None)
@@ -59,10 +60,14 @@ class ExecutePlanExecutor(BaseWorkflowExecutor):
             success = _get_val(agent_result, "success")
             summary_file = _get_val(agent_result, "summary_file") or _get_val(agent_result, "filename")
 
-            if agent_result and success:
-                logger.info(f"Plan executed successfully for message_id={message_id}. Summary file: {summary_file}")
-            else:
-                logger.warning(f"Plan execution reported failure or incomplete execution for message_id={message_id}")
+            # Si no vino en el structured output, intentar extraer enlace file:// o ruta del texto
+            if not summary_file and response_text:
+                import re
+                match = re.search(r"file://([^\s\)\"']+\.md)", response_text) or re.search(r"(/tmp/[^\s\)\"']+\.md)", response_text)
+                if match:
+                    summary_file = match.group(1)
+
+            logger.info(f"Plan executed for message_id={message_id}. Success: {success}, Summary file: {summary_file}")
 
             finished_at = datetime.now(timezone.utc)
 

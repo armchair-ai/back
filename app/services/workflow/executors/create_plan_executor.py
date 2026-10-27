@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Type
 from pydantic import BaseModel
-
 from app.core.database import AsyncSessionLocal
 from app.core.event_dispatcher import event_dispatcher
 from app.events.workflow import WorkflowStepCompletedEvent
@@ -45,28 +45,55 @@ class CreatePlanExecutor(BaseWorkflowExecutor):
             response_schema = SCHEMA_MAP.get(step.response_schema or "", PlanCreateResponse)
 
             logger.info(f"Invoking agent for create_plan, message_id={message_id}")
-            agent_result: Any = await agent_service.chat_structured(
+            agent_result, response_text = await agent_service.chat_structured_with_text(
                 prompt=message.text,
                 response_structure=response_schema,
                 model=step.model,
                 system_instructions=system_instructions,
             )
+            logger.info(f"Agent finished create_plan. Structured result: {agent_result}")
 
-            # Extraer campos de resultado de forma segura (objeto o dict)
+            # Extraer campos de resultado de forma segura
             def _get_val(obj: Any, key: str) -> Any:
                 return obj.get(key) if isinstance(obj, dict) else getattr(obj, key, None)
 
-            success = _get_val(agent_result, "success")
-            filename = _get_val(agent_result, "filename")
+            plan_path: str | None = None
 
-            # Guardar el plan en la base de datos si el resultado fue exitoso
-            if agent_result and success and filename:
+            # 1. Intentar desde structured output
+            fn = _get_val(agent_result, "filename")
+            if fn and str(fn).strip():
+                clean_fn = str(fn).strip()
+                if Path(clean_fn).exists():
+                    plan_path = clean_fn
+
+            # 2. Intentar extraer del texto de la respuesta (enlaces file:// o rutas /tmp/...)
+            if not plan_path and response_text:
+                import re
+                match = re.search(r"file://([^\s\)\"']+\.md)", response_text) or re.search(r"(/tmp/[^\s\)\"']+\.md)", response_text)
+                if match:
+                    candidate = match.group(1)
+                    if Path(candidate).exists():
+                        plan_path = candidate
+
+            # 3. Fallback: buscar el archivo .md más reciente en el brain de Antigravity
+            if not plan_path:
+                brain_dir = Path("/tmp/.gemini/antigravity/brain")
+                if brain_dir.exists():
+                    md_files = list(brain_dir.glob("**/*.md"))
+                    if md_files:
+                        latest_file = max(md_files, key=lambda f: f.stat().st_mtime)
+                        plan_path = str(latest_file)
+
+            # Guardar el plan en la base de datos si se obtuvo una ruta válida
+            if plan_path:
                 plan_in = PlanCreate(
-                    filename=str(filename).strip(),
+                    filename=plan_path,
                     message_id=message.id,
                 )
                 await plan_repository.create(db, obj_in=plan_in)
                 logger.info(f"Plan saved to database with filename: {plan_in.filename}")
+            else:
+                logger.warning(f"Could not determine plan file path for message_id={message_id}")
 
             finished_at = datetime.now(timezone.utc)
 
