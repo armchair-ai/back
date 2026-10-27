@@ -12,3 +12,4 @@ class PlanCreate(PlanBase):
 class PlanCreateResponse(BaseModel):
     success: bool = Field(default=False)
     filename: str = Field(default="")
+

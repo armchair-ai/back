@@ -59,14 +59,14 @@ class CreatePlanExecutor(BaseWorkflowExecutor):
             success = _get_val(agent_result, "success")
             filename = _get_val(agent_result, "filename")
 
-            # Ejecutar guardado del plan si el resultado fue exitoso
+            # Guardar el plan en la base de datos si el resultado fue exitoso
             if agent_result and success and filename:
                 plan_in = PlanCreate(
                     filename=str(filename).strip(),
                     message_id=message.id,
                 )
                 await plan_repository.create(db, obj_in=plan_in)
-                logger.info(f"Plan created successfully with filename: {plan_in.filename}")
+                logger.info(f"Plan saved to database with filename: {plan_in.filename}")
 
             finished_at = datetime.now(timezone.utc)
 
