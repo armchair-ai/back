@@ -8,3 +8,6 @@
 5. Return the response using the structured schema:
    - `success`: Boolean (`true` if all plan steps were successfully executed and verified, `false` otherwise).
    - `summary_file`: Path to the execution summary file (e.g., `summaries/summary_feature_auth.md`).
+
+# Project Context
+The backend is a Laravel project located at `/workspace/skeleton-laravel-back`. All file modifications, command executions, and tests must target this application.

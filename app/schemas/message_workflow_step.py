@@ -7,6 +7,7 @@ class MessageWorkflowStepResponse(BaseModel):
     id: int
     message_id: int
     workflow_step_id: int
+    status: str = "pending"
     started_at: Optional[datetime] = None
     finished_at: Optional[datetime] = None
     created_at: datetime

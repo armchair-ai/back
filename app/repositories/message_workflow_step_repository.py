@@ -11,7 +11,7 @@ class MessageWorkflowStepRepository(BaseRepository[MessageWorkflowStep, Any]):
     def __init__(self) -> None:
         super().__init__(MessageWorkflowStep)
 
-    async def get_with_step(self, db: AsyncSession, id: int) -> Optional[MessageWorkflowStep]:
+    async def get_with_step(self, db: AsyncSession, id: int) -> MessageWorkflowStep:
         result = await db.execute(
             select(self.model)
             .options(selectinload(self.model.workflow_step))
@@ -25,12 +25,14 @@ class MessageWorkflowStepRepository(BaseRepository[MessageWorkflowStep, Any]):
         *,
         message_id: int,
         workflow_step_id: int,
+        status: str = "running",
         started_at: Optional[datetime] = None,
         finished_at: Optional[datetime] = None,
     ) -> MessageWorkflowStep:
         db_obj = self.model(
             message_id=message_id,
             workflow_step_id=workflow_step_id,
+            status=status,
             started_at=started_at,
             finished_at=finished_at,
         )
@@ -44,14 +46,28 @@ class MessageWorkflowStepRepository(BaseRepository[MessageWorkflowStep, Any]):
         db: AsyncSession,
         *,
         id: int,
+        status: str = "completed",
         finished_at: Optional[datetime] = None,
-    ) -> Optional[MessageWorkflowStep]:
+    ) -> MessageWorkflowStep:
         step = await self.get(db, id=id)
-        if step:
-            step.finished_at = finished_at or datetime.now(timezone.utc)
-            db.add(step)
-            await db.commit()
-            await db.refresh(step)
+        step.status = status
+        step.finished_at = finished_at or datetime.now(timezone.utc)
+        db.add(step)
+        await db.commit()
+        await db.refresh(step)
+        return step
+
+    async def mark_failed(
+        self,
+        db: AsyncSession,
+        *,
+        id: int,
+    ) -> MessageWorkflowStep:
+        step = await self.get(db, id=id)
+        step.status = "failed"
+        db.add(step)
+        await db.commit()
+        await db.refresh(step)
         return step
 
 
