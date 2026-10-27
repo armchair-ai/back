@@ -5,6 +5,7 @@ from app.repositories.message_workflow_step_repository import message_workflow_s
 from app.services.workflow_step_service import workflow_step_service
 from app.services.workflow.executors.base import BaseWorkflowExecutor
 from app.services.workflow.executors.create_plan_executor import CreatePlanExecutor
+from app.services.workflow.executors.execute_plan_executor import ExecutePlanExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 class WorkflowOrchestrator:
     EXECUTORS: Dict[str, Type[BaseWorkflowExecutor]] = {
         "create_plan": CreatePlanExecutor,
+        "execute_plan": ExecutePlanExecutor,
     }
 
     async def start(self, message_id: int) -> None:

@@ -1,4 +1,9 @@
 from app.services.workflow.executors.base import BaseWorkflowExecutor
 from app.services.workflow.executors.create_plan_executor import CreatePlanExecutor
+from app.services.workflow.executors.execute_plan_executor import ExecutePlanExecutor
 
-__all__ = ["BaseWorkflowExecutor", "CreatePlanExecutor"]
+__all__ = [
+    "BaseWorkflowExecutor",
+    "CreatePlanExecutor",
+    "ExecutePlanExecutor"
+]

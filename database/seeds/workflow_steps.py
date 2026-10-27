@@ -19,17 +19,17 @@ async def seed(session: AsyncSession) -> None:
             "order": 2,
             "model": "gemini-2.5-flash",
             "system_instructions": "execute_plan.md",
-            "response_schema": None,
+            "response_schema": "ExecutePlanResponse",
             "skills_paths": "skills",
         },
-        {
-            "name": "review_code_style",
-            "order": 3,
-            "model": "gemini-2.5-flash",
-            "system_instructions": "review_code_style.md",
-            "response_schema": None,
-            "skills_paths": "skills",
-        },
+        # {
+        #     "name": "review_code_style",
+        #     "order": 3,
+        #     "model": "gemini-2.5-flash",
+        #     "system_instructions": "review_code_style.md",
+        #     "response_schema": None,
+        #     "skills_paths": "skills",
+        # },
     ]
 
     for data in initial_steps:
