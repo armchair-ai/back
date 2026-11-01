@@ -34,6 +34,13 @@ class WorkflowStepRepository(BaseRepository[WorkflowStep, WorkflowStepCreate]):
         )
         return result.scalars().first()
 
+    async def get_all_ordered(self, db: AsyncSession) -> list[WorkflowStep]:
+        result = await db.execute(
+            select(self.model)
+            .order_by(self.model.order.asc())
+        )
+        return list(result.scalars().all())
+
 
 workflow_step_repository = WorkflowStepRepository()
 

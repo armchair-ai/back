@@ -20,3 +20,12 @@ class WorkflowStepResponse(WorkflowStepBase):
 
     class Config:
         from_attributes = True
+
+
+class WorkflowStepListItemResponse(BaseModel):
+    order: int
+    name: str
+    label: str
+
+    class Config:
+        from_attributes = True
