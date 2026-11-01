@@ -27,6 +27,7 @@ class WorkflowStepService:
         steps = await workflow_step_repository.get_all_ordered(db)
         return [
             WorkflowStepListItemResponse(
+                id=step.id,
                 order=step.order,
                 name=step.name,
                 label=trans(f"workflow_steps.{step.name}", locale=locale),

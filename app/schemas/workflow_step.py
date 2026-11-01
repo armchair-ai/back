@@ -23,6 +23,7 @@ class WorkflowStepResponse(WorkflowStepBase):
 
 
 class WorkflowStepListItemResponse(BaseModel):
+    id: int
     order: int
     name: str
     label: str
